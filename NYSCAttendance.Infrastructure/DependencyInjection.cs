@@ -144,7 +144,8 @@ public static class DependencyInjection
             {
                 var origins = new string[]
                   {
-                    "http://localhost:5268"
+                    "http://localhost:5268",
+                    "http://127.0.0.1:5500"
                   };
                 opt.AllowAnyHeader();
                 opt.AllowAnyMethod();
