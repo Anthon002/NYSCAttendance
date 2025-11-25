@@ -24,9 +24,15 @@ public sealed class GetAttendanceRecordRequestHandler : IRequestHandler<GetAtten
     {
         try
         {
-            var attendance = await _context.Attendances.Where(x => x.Identifier == request.Identifier.Trim()).Select(x => new { x.SerialNumber }).FirstOrDefaultAsync(cancellationToken);
+
+            var attendance = await _context.Attendances.Where(x => x.Identifier == request.Identifier.Trim()).Select(x => new { x.SerialNumber, x.CreatedAt }).FirstOrDefaultAsync(cancellationToken);
+
             if (attendance is null)
                 return new BaseResponse<long>(false, "Your attendance has not been recorded. Please log your attendance to continue.");
+            
+            if (attendance.CreatedAt.Date != DateTimeOffset.UtcNow.Date)
+                return new BaseResponse<long>(false, "Your attendance has not been recorded. Please log your attendance to continue.");
+                
             return new BaseResponse<long>(true, "Attendance retrieved successfully.", attendance.SerialNumber);
         }
         catch (Exception ex)

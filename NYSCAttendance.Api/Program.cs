@@ -20,17 +20,13 @@ builder.Services.AddRateLimiter();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseHsts();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHsts();
 
 app.UseHttpsRedirection();
+app.UseCors("corPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(name: "MyArea", pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");

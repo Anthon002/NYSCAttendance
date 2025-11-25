@@ -145,7 +145,8 @@ public static class DependencyInjection
                 var origins = new string[]
                   {
                     "http://localhost:5268",
-                    "http://127.0.0.1:5500"
+                    "http://127.0.0.1:5500",
+                    "https://nyscattendance.netlify.app"
                   };
                 opt.AllowAnyHeader();
                 opt.AllowAnyMethod();

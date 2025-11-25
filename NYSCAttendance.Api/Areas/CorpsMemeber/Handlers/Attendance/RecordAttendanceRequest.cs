@@ -59,7 +59,7 @@ public sealed class RecordAttendanceRequestHandler : IRequestHandler<RecordAtten
             if (att is not null)
                 return new BaseResponse<long>(true, "Attendance already recorded.", att.SerialNumber);
 
-            var lga = await _context.LGAs.Where(x => x.Token.Trim() == x.Token).Select(x => new { x.Longitude, x.Latitude, x.DistanceInMeters, x.Id }).FirstOrDefaultAsync(cancellationToken);
+            var lga = await _context.LGAs.Where(x => x.Token.Trim() == x.Token).Select(x => new { x.Longitude, x.Latitude, x.DistanceInMeters, x.Id, x.Name }).FirstOrDefaultAsync(cancellationToken);
             if (lga is null)
                 return new BaseResponse<long>(false, "LGA not found.");
 
@@ -69,7 +69,7 @@ public sealed class RecordAttendanceRequestHandler : IRequestHandler<RecordAtten
             var distance = userLocation.Distance(designatedLocation) * 111 * 1000;
 
             if (distance > lga.DistanceInMeters)
-                return new BaseResponse<long>(false, "You are too far from the designated spot. Please get closer and try again.");
+                return new BaseResponse<long>(false, $"You are too far from the designated spot ({distance.ToString("F2")}m). Please get closer to {lga.Name} and try again.");
 
             using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
@@ -82,7 +82,7 @@ public sealed class RecordAttendanceRequestHandler : IRequestHandler<RecordAtten
 
                     long serialNumber = 1;
                     if (previousAttendance is not null)
-                        serialNumber = previousAttendance.SerialNumber;
+                        serialNumber = previousAttendance.SerialNumber + 1;
 
                     var attendance = new Attendance
                     {

@@ -128,6 +128,7 @@ public record class UtilityService : IUtilityService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow,
                 Status = OTPStatusEnum.Active,
+                Identifier = identitifier,
                 UserId = userid
             };
             await _context.OTPs.AddAsync(otp, cancellationToken);
