@@ -31,7 +31,7 @@ public sealed class GetAttendanceRecordRequestHandler : IRequestHandler<GetAtten
                 return new BaseResponse<long>(false, "Your attendance has not been recorded. Please log your attendance to continue.");
             
             if (attendance.CreatedAt.Date != DateTimeOffset.UtcNow.Date)
-                return new BaseResponse<long>(false, "Your attendance has not been recorded. Please log your attendance to continue.");
+                return new BaseResponse<long>(false, "Your attendance for today has not been recorded. Please log your attendance to continue.");
                 
             return new BaseResponse<long>(true, "Attendance retrieved successfully.", attendance.SerialNumber);
         }

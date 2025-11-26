@@ -15,7 +15,7 @@ builder.Services.RegisterServices(builder.Configuration);
 builder.Services.AddMediator(x => x.ServiceLifetime = ServiceLifetime.Transient);
 builder.Services.RegisterSwagger();
 builder.Services.AddControllers();
-builder.Services.AddRateLimiter();
+builder.Services.RegisterRateLimiter();
 
 var app = builder.Build();
 
@@ -27,6 +27,7 @@ app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseCors("corPolicy");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllerRoute(name: "MyArea", pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
