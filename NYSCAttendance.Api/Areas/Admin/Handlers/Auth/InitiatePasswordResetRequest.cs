@@ -46,7 +46,7 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.Auth
                 if (!emailResponse.Status)
                     return new BaseResponse<string>(false, emailResponse.Message);
 
-                return new BaseResponse<string>(true, "An OTP has been sent to your mail.");
+                return new BaseResponse<string>(true, "An OTP has been sent to your mail.", otp.Identifier);
                 
             }
             catch (Exception ex)

@@ -39,7 +39,7 @@ public sealed record NotificationService : INotificationService
     {
         var message = $"Hi {request.FirstName},<br><br>Your One-Time Password (OTP) is <b>{otp}</b>.<br><br>Please use this code to complete your verification. It will expire shortly.";
 
-        var response = await _emailService.SendEmail(new BrevoRequest(message, $"{_options.AppSettings?.AppName} | Password Reset Initiated", request.FirstName, request.Email), cancellationToken);
+        var response = await _emailService.SendEmail(new BrevoRequest(message, $"{_options.AppSettings?.AppName} | Email Verification", request.FirstName, request.Email), cancellationToken);
 
         return new BaseResponse(response.Status, response.Message);
     }

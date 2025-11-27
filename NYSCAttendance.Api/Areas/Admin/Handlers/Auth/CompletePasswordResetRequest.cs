@@ -38,7 +38,7 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.Auth
                 try
                 {
                     var otpResponse = await _utilityService.CompleteOtpAsync(request.Identifier, request.Code, cancellationToken);
-                    if (otpResponse.Status)
+                    if (!otpResponse.Status)
                         return new BaseResponse(false, otpResponse.Message);
 
                     var user = await _context.AppUsers.FirstOrDefaultAsync(x => x.Id == otpResponse.Value, cancellationToken);
