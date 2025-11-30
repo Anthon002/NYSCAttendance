@@ -51,7 +51,8 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.Auth
                         UserName = request.Email.ToLower(),
                         CreatedAt = DateTimeOffset.UtcNow,
                         UpdatedAt = DateTimeOffset.UtcNow,
-                        UserType = UserTypeEnum.Admin
+                        UserType = UserTypeEnum.Admin,
+                        SecurityStamp = Guid.NewGuid().ToString()
                     };
                     await _context.AppUsers.AddAsync(user, cancellationToken);
                     await _context.SaveChangesAsync(cancellationToken);
