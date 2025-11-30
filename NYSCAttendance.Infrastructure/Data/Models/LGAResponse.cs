@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace NYSCAttendance.Infrastructure.Data.Models;
 
 public sealed record LGAResponse
@@ -8,6 +10,8 @@ public sealed record LGAResponse
     public double Latitude { get; set; }
     public double DistanceInMeters { get; set; }
     public string Token { get; set; } = default!;
+    public string OpenTime { get; set; } = default!;
+    public string CloseTime { get; set; } = default!;
 }
 
 public sealed record AttendanceResponse
@@ -19,6 +23,9 @@ public sealed record AttendanceResponse
     public string StateCode { get; set; } = default!;
     public DateTimeOffset RecordedAt { get; set; }
     public string? Day { get; set; }
+    public long SerialNumber { get; set; } = default!;
+    public string Identifier { get; set; } = default!;
+    public string CDS { get; set; } = default!;
     public int DayInt;
 }
 

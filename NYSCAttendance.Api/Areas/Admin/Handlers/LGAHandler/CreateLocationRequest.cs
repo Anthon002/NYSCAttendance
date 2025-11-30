@@ -12,6 +12,8 @@ public sealed record CreateLocationRequest : IRequest<BaseResponse<string>>
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public double DistanceInMeters { get; set; }
+    public string OpensAt { get; set; } = default!;
+    public string ClosesAt { get; set; } = default!;
 }
 
 public sealed class CreateLocationRequestHandler : IRequestHandler<CreateLocationRequest, BaseResponse<string>>
@@ -37,6 +39,42 @@ public sealed class CreateLocationRequestHandler : IRequestHandler<CreateLocatio
             if (request.Longitude < -180.0 || request.Longitude > 180.0)
                 return new BaseResponse<string>(false, "Invalid location. Please check and try again.");
 
+           // validating opening hour
+            if (int.TryParse(request.OpensAt.Split(":")[0], out int openHr))
+            {
+                if (openHr < 0 || openHr > 23)
+                    return new BaseResponse<string>(false, "Invalid opening hour provided. Please check and try again.");
+            }
+            else
+                openHr = 7;
+
+            //validate opening minute
+            if (int.TryParse(request.OpensAt.Split(":")[1], out int openMin))
+            {
+                if (openMin < 0 || openMin > 59)
+                    return new BaseResponse<string>(false, "Invalid opening minute provided. Please check and try again.");
+            }
+            else
+                openMin = 0;
+
+            //validate closing hour
+            if (int.TryParse(request.ClosesAt.Split(":")[0], out int closeHr))
+            {
+                if (closeHr < 0 || closeHr > 23)
+                    return new BaseResponse<string>(false, "Invalid opening hour provided. Please check and try again.");
+            }
+            else
+                closeHr = 9;
+
+            //validate closing minute
+            if (int.TryParse(request.ClosesAt.Split(":")[1], out int closeMin))
+            {
+                if (closeMin < 0 || closeMin > 59)
+                    return new BaseResponse<string>(false, "Invalid opening minute provided. Please check and try again.");
+            }
+            else
+                closeMin = 0;
+
             using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
                 try
@@ -50,7 +88,9 @@ public sealed class CreateLocationRequestHandler : IRequestHandler<CreateLocatio
                         Longitude = request.Longitude,
                         Token = token!,
                         Name = request.Name,
-                        UpdatedAt = DateTimeOffset.UtcNow
+                        UpdatedAt = DateTimeOffset.UtcNow,
+                        OpenTime = request.OpensAt,
+                        CloseTime = request.ClosesAt
                     }, cancellationToken);
 
                     await _context.SaveChangesAsync(cancellationToken);

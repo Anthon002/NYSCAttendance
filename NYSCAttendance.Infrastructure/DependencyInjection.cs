@@ -164,7 +164,7 @@ public static class DependencyInjection
                 partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
                 factory: _ => new SlidingWindowRateLimiterOptions
                 {
-                    PermitLimit = 1,
+                    PermitLimit = 3,
                     Window = TimeSpan.FromMinutes(1),
                     SegmentsPerWindow = 1
                 }

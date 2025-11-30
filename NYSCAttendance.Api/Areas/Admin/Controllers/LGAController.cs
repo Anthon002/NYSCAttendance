@@ -68,7 +68,7 @@ public sealed class LGAController(ISender sender) : ControllerBase
         var response = await _sender.Send(request, cancellationToken);
         if (!response.Status)
             return BadRequest(response);
-        return Ok(response);
+        return File(response.Value!, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"attendance-record"); ;
     }
 
     [HttpPost("{id:long}/Reserves")]

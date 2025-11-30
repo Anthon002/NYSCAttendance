@@ -1,6 +1,7 @@
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Extensions;
 using NYSCAttendance.Infrastructure.Data;
 using NYSCAttendance.Infrastructure.Data.Models;
 using NYSCAttendance.Infrastructure.Utils;
@@ -37,17 +38,18 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                 DateTimeOffset? endTimeStamp = null;
 
                 if (request.From != null)
-                    startTimeStamp = request.From.Value.Date;
+                    startTimeStamp = new DateTimeOffset(request.From.Value.Year, request.From.Value.Month, request.From.Value.Day, 0, 0, 0, TimeSpan.Zero);
 
                 if (request.To != null)
-                    endTimeStamp = request.To.Value.AddDays(1).AddTicks(-1);
+                    endTimeStamp = new DateTimeOffset(request.To.Value.Year, request.To.Value.Month, request.To.Value.Day, 0, 0, 0, TimeSpan.Zero);
 
                 if (!await _context.LGAs.AnyAsync(x => x.Id == request.LGAId, cancellationToken))
                     return new BaseResponse<PaginatedResponse<AttendanceResponse>>(false, "Attendance location not found.");
 
                 var search = request.Search?.Trim().ToLower();
 
-                var iAttendance = from attendance in _context.Attendances.Select(x => new { x.FirstName, x.LastName, x.MiddleName, x.StateCode, x.LGAId, x.Batch, x.Day, x.CreatedAt, x.CDS })
+                var iAttendance = from attendance in _context.Attendances.Select(x => new { x.FirstName, x.LastName, x.MiddleName, x.StateCode, x.LGAId, x.Batch, x.Day, x.Id, x.CreatedAt, x.CDS, x.Identifier, x.SerialNumber })
+                                  orderby attendance.Id descending
                                   where attendance.LGAId == request.LGAId
                                     && (request.Batch == null || request.Batch == attendance.Batch)
                                     && (request.DayOfWeek == null || request.DayOfWeek == attendance.Day)
@@ -56,7 +58,8 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                                     && (request.CDS == null || attendance.CDS == request.CDS)
                                     && (search == null || attendance.FirstName.ToLower().Contains(search)
                                                        || attendance.LastName.ToLower().Contains(search)
-                                                       || attendance.MiddleName.ToLower().Contains(search))
+                                                       || attendance.MiddleName.ToLower().Contains(search)
+                                                       || attendance.Identifier.Contains(search))
                                   select new AttendanceResponse
                                   {
                                       FirstName = attendance.FirstName,
@@ -64,7 +67,11 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                                       MiddleName = attendance.MiddleName,
                                       RecordedAt = attendance.CreatedAt,
                                       StateCode = attendance.StateCode,
-                                      DayInt = attendance.Day
+                                      DayInt = attendance.Day,
+                                      CDS = attendance.CDS.GetDisplayName(),
+                                      Day = ((DayOfWeek)attendance.Day).ToString(),
+                                      Identifier = attendance.Identifier,
+                                      SerialNumber = attendance.SerialNumber
                                   };
                 var totalRecordsCount = await iAttendance.CountAsync(cancellationToken);
                 var records = await iAttendance.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).ToArrayAsync(cancellationToken);

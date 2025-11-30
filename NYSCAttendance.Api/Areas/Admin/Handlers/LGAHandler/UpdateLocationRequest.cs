@@ -12,6 +12,8 @@ public sealed record UpdateLocationRequest : IRequest<BaseResponse>
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public string Name { get; set; } = default!;
+    public string OpensAt { get; set; } = default!;
+    public string ClosesAt { get; set; } = default!;
 }
 
 public sealed class UpdateLocationRequestHandler : IRequestHandler<UpdateLocationRequest, BaseResponse>
@@ -37,6 +39,42 @@ public sealed class UpdateLocationRequestHandler : IRequestHandler<UpdateLocatio
             if (request.Longitude < -180.0 || request.Longitude > 180.0)
                 return new BaseResponse(false, "Invalid location. Please check and try again.");
 
+           // validating opening hour
+            if (int.TryParse(request.OpensAt.Split(":")[0], out int openHr))
+            {
+                if (openHr < 0 || openHr > 23)
+                    return new BaseResponse(false, "Invalid opening hour provided. Please check and try again.");
+            }
+            else
+                openHr = 7;
+
+            //validate opening minute
+            if (int.TryParse(request.OpensAt.Split(":")[1], out int openMin))
+            {
+                if (openMin < 0 || openMin > 59)
+                    return new BaseResponse(false, "Invalid opening minute provided. Please check and try again.");
+            }
+            else
+                openMin = 0;
+
+            //validate closing hour
+            if (int.TryParse(request.ClosesAt.Split(":")[0], out int closeHr))
+            {
+                if (closeHr < 0 || closeHr > 23)
+                    return new BaseResponse(false, "Invalid opening hour provided. Please check and try again.");
+            }
+            else
+                closeHr = 9;
+
+            //validate closing minute
+            if (int.TryParse(request.ClosesAt.Split(":")[1], out int closeMin))
+            {
+                if (closeMin < 0 || closeMin > 59)
+                    return new BaseResponse(false, "Invalid opening minute provided. Please check and try again.");
+            }
+            else
+                closeMin = 0;
+
             using (var transaction = await _context.Database.BeginTransactionAsync(cancellationToken))
             {
                 try
@@ -46,6 +84,8 @@ public sealed class UpdateLocationRequestHandler : IRequestHandler<UpdateLocatio
                         .SetProperty(c => c.Latitude, request.Latitude)
                         .SetProperty(c => c.Longitude, request.Longitude)
                         .SetProperty(c => c.Name, request.Name)
+                        .SetProperty(c => c.CloseTime, request.ClosesAt)
+                        .SetProperty(c => c.OpenTime, request.OpensAt)
                         .SetProperty(c => c.UpdatedAt, DateTimeOffset.UtcNow), cancellationToken);
 
                     await transaction.CommitAsync(cancellationToken);

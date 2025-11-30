@@ -16,6 +16,12 @@ public sealed class LGA : BaseEntity
 
     [MaxLength(100)]
     public string Name { get; set; } = default!;
+
+    [MaxLength(10)]
+    public string OpenTime { get; set; } = default!;
+
+    [MaxLength(10)]
+    public string CloseTime { get; set; } = default!;
 }
 
 public sealed class CDS : BaseEntity

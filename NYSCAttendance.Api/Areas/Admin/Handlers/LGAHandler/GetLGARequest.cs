@@ -33,7 +33,9 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                     Longitude = x.Longitude,
                     Name = x.Name,
                     DistanceInMeters = x.DistanceInMeters,
-                    Token = x.Token
+                    Token = x.Token,
+                    OpenTime = x.OpenTime,
+                    CloseTime = x.CloseTime
                 }).FirstOrDefaultAsync(cancellationToken);
 
                 if (lga is null)
