@@ -59,7 +59,7 @@ public sealed class RecordAttendanceRequestHandler : IRequestHandler<RecordAtten
             if (att is not null)
                 return new BaseResponse<long>(true, "Attendance already recorded.", att.SerialNumber);
 
-            var lga = await _context.LGAs.Where(x => x.Token.Trim() == x.Token).Select(x => new { x.Longitude, x.Latitude, x.DistanceInMeters, x.Id, x.Name }).FirstOrDefaultAsync(cancellationToken);
+            var lga = await _context.LGAs.Where(x => x.Token.Trim() == request.Token).Select(x => new { x.Longitude, x.Latitude, x.DistanceInMeters, x.Id, x.Name }).FirstOrDefaultAsync(cancellationToken);
             if (lga is null)
                 return new BaseResponse<long>(false, "LGA not found.");
 
