@@ -76,7 +76,7 @@ public sealed class LGAController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(BaseResponse<string>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
     [AdminAuthorization(AppConstants.LGAManagement)]
-    public async Task<IActionResult> ReserveSpot([FromRoute] long id, [FromQuery] ReserveSpotRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> ReserveSpot([FromRoute] long id, [FromBody] ReserveSpotRequest request, CancellationToken cancellationToken)
     {
         request.LGAId = id;
         var response = await _sender.Send(request, cancellationToken);

@@ -13,7 +13,7 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
         public string? LastName { get; set; }
         public string? MiddleName { get; set; }
         public string? StateCode { get; set; }
-        public int Day { get; set; }
+        public CDSEnum CDS { get; set; }
         public BatchEnum Batch { get; set; } = default;
         public double Longitude { get; set; }
         public double Latitude { get; set; }
@@ -62,9 +62,10 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                 {
                     try
                     {
-                        var today = DateTimeOffset.UtcNow.Date;
+                        var now = DateTimeOffset.UtcNow;
+                        var today = new DateTimeOffset(now.Year, now.Month, now.Day, 0, 0, 0, TimeSpan.Zero);
 
-                        var previousAttendance = await _context.Attendances.Where(x => x.LGAId == request.LGAId && x.CreatedAt >= today).Select(x => new { x.SerialNumber, x.CreatedAt }).OrderByDescending(x => x).FirstOrDefaultAsync(cancellationToken);
+                        var previousAttendance = await _context.Attendances.Where(x => x.LGAId == request.LGAId && x.CreatedAt >= today).Select(x => new { x.SerialNumber, x.CreatedAt }).OrderByDescending(x => x.CreatedAt).FirstOrDefaultAsync(cancellationToken);
 
                         long serialNumber = 0;
                         if (previousAttendance is not null)
@@ -78,14 +79,17 @@ namespace NYSCAttendance.Api.Areas.Admin.Handlers.LGAHandler
                             CreatedAt = DateTimeOffset.UtcNow,
                             UpdatedAt = DateTimeOffset.UtcNow,
                             Identifier = "",
-                            SerialNumber = serialNumber,
+                            SerialNumber = serialNumber + 1,
                             Batch = request.Batch,
                             LGAId = request.LGAId,
-                            Day = request.Day,
-                            StateCode = request.StateCode
+                            Day = (int)now.DayOfWeek,
+                            StateCode = request.StateCode,
+                            CDS = request.CDS,
+                            ISReserve = true
                         };
 
                         await _context.Attendances.AddAsync(attendance, cancellationToken);
+                        await _context.SaveChangesAsync(cancellationToken);
                         await transaction.CommitAsync(cancellationToken);
 
                         return new BaseResponse<long>(true, "Attendance record saved.", attendance.SerialNumber);
